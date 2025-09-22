@@ -1,56 +1,20 @@
-class Events {
-  callbacks = [];
+import {Events} from "./Events.js"
+import {Inventory} from "./Inventory.js"
+import {Player} from "./entities/Player.js"
+import {Sword} from "./entities/Sword.js"
+import {HP} from "./entities/HP.js"
+import {Enemy} from "./entities/Enemy.js"
 
-  emit(name, value) {
-    this.callbacks.forEach(event => {
-      if (event.name === name) {
-        event.callback(value)
-      }
-    })
-  }
-
-  on(name, callback) {
-    this.callbacks.push({
-      name,
-      callback,
-    });
-  }
-
-}
-
-
-class Inventory {
-  constructor(game) {
-    this.game = game
-    this.items = []
-
-    this.game.events.on("PLAYER_GET_HP", data => {
-      data.item.x = this.items.length * data.item.width
-      data.item.y = 0
-      this.items.push(data.item)
-    })
-    this.game.events.on("ENEMY_ATTACK", data => {
-      this.items.pop()
-    })
-  }
-  draw() {
-    this.items.forEach(item => { item.draw() }
-    )
-  }
-
-}
-
-
-class Game {
-
+export class Game {
   constructor() {
     this.canvas = document.createElement("canvas")
     this.field = document.querySelector(".field")
+    this.inventoryDiv = document.querySelector(".inventory")
     this.ctx = this.canvas.getContext("2d")
     this.canvas.width = this.field.clientWidth
     this.canvas.height = this.field.clientHeight
     this.field.appendChild(this.canvas)
-
+    
     this.cellSize = 50
     this.cols = this.canvas.width / this.cellSize
     this.rows = this.canvas.height / this.cellSize
@@ -58,17 +22,18 @@ class Game {
     this.walls = []
     this.enemies = []
     this.hps = []
+    this.enemiesAmount = 15
+    this.hpsAmount = 2
 
     this.events = new Events()
 
     this.bg = new Image()
     this.wall = new Image()
 
-
-
     this.groundKeys = null
 
     this.player = new Player(this)
+    this.sword = new Sword(this)
     this.inventory = new Inventory(this)
 
     this.wall.src = "/images/tile-W.png"
@@ -138,14 +103,14 @@ class Game {
 
     //this.spawnEntity(this.player)
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < this.enemiesAmount; i++) {
       const dirX = Math.floor(Math.random() * 3 - 1)
-      this.createEnemy()
+      this.createEntities(Enemy, this.enemies)
     }
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < this.hpsAmount; i++) {
       const dirX = Math.floor(Math.random() * 3 - 1)
-      this.createHP(i)
+      this.createEntities(HP,this.hps)
     }
 
     window.addEventListener('keydown', (e) => {
@@ -170,6 +135,7 @@ class Game {
         }
       }
     })
+    
     window.addEventListener('keyup', (e) => {
       switch (e.code) {
         case 'ArrowRight':
@@ -186,31 +152,18 @@ class Game {
     }
   }
 
-  createHP(id) {
+  createEntities(entity, entities) {
     const randomPos = Math.floor(Math.random() * this.getGroundKeys().length - 1)
     const x = parseInt(this.getGroundKeys()[randomPos].split(':')[0])
     const y = parseInt(this.getGroundKeys()[randomPos].split(':')[1])
-    const hp = new HP(this, id, x, y)
-    this.hps.push(hp)
+    
+    entities.push(new entity(this, x, y))
   }
-  createEnemy() {
-    const randomPos = Math.floor(Math.random() * this.getGroundKeys().length - 1)
-    const x = parseInt(this.getGroundKeys()[randomPos].split(':')[0])
-    const y = parseInt(this.getGroundKeys()[randomPos].split(':')[1])
-    const enemy = new Enemy(this, x, y)
-    this.enemies.push(enemy)
-  }
-
-  configureEnemy(entity) {
-    const randomPos = Math.floor(Math.random() * this.getGroundKeys().length - 1)
-    entity.x = parseInt(this.getGroundKeys()[randomPos].split(':')[0])
-    entity.y = parseInt(this.getGroundKeys()[randomPos].split(':')[1])
-  }
-
-  getGroundKeys() {
-    //  if (!this.groundKeys) {
-    this.groundKeys = Object.keys(this.ground)
-    //  }
+  
+  getGroundKeys(refresh = false) {
+    if (!this.groundKeys || refresh) {
+      this.groundKeys = Object.keys(this.ground)
+    }
     return this.groundKeys
   }
 
@@ -235,9 +188,9 @@ class Game {
   drawPlayer() {
     this.player.draw(this.ctx)
   }
-
-  drawInventory() {
-    this.inventory.draw(this.ctx)
+  
+  drawSword() {
+    if(this.sword) this.sword.draw(this.ctx)
   }
 
   drawEnemies() {
@@ -254,7 +207,6 @@ class Game {
 
   update() {
     this.player.update()
-
     for (let i = 0; i < this.hps.length; i++) {
       this.hps[i].update()
       if (this.hps[i].delete) {
@@ -270,6 +222,10 @@ class Game {
         i--
       }
     }
+    
+    if(this.sword) {
+      this.sword.update()
+    }
   }
 
   draw() {
@@ -278,7 +234,7 @@ class Game {
     this.drawEnemies()
     this.drawHPs()
     this.drawPlayer()
-    this.drawInventory()
+    this.drawSword()
   }
 
 
@@ -287,232 +243,5 @@ class Game {
     this.update()
     this.draw()
     window.requestAnimationFrame(this.loop)
-  }
-}
-
-
-class Player {
-  constructor(game, x, y, width, height, imageSrc) {
-    this.game = game
-    this.x = x ?? 100
-    this.y = y ?? 100
-    this.width = width ?? game.cellSize
-    this.height = height ?? game.cellSize
-    this.speed = 3
-    this.destination = {
-      x: this.x,
-      y: this.y
-    }
-    this.dir = 'stop'
-    this.image = new Image()
-    this.image.src = imageSrc ?? "/images/tile-P.png"
-    this.lives = 0
-    this.isAttacked = false
-  }
-
-  isGround(x, y) {
-    const coord = `${x}:${y}`
-    return true
-    return this.game.ground[coord] === 'ground' ? true : false
-  }
-
-  checkDistance() {
-    let distanceToX = this.destination.x - this.x
-    let distanceToY = this.destination.y - this.y
-
-    let distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
-    if (distance <= this.speed) {
-      this.x = this.destination.x
-      this.y = this.destination.y
-    } else {
-      let normalizedX = distanceToX / distance;
-      this.x += normalizedX * this.speed;
-      let normalizedY = distanceToY / distance;
-      this.y += normalizedY * this.speed;
-
-      distanceToX = this.destination.x - this.x;
-      distanceToY = this.destination.y - this.y;
-
-      distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
-    }
-
-    return distance
-  }
-
-  move() {
-    let nextPosX = this.destination.x
-    let nextPosY = this.destination.y
-
-    if (this.dir === 'right') {
-      nextPosX += this.width
-    }
-    if (this.dir === 'left') {
-      nextPosX -= this.width
-    }
-    if (this.dir === 'up') {
-      nextPosY -= this.height
-    }
-    if (this.dir === 'down') {
-      nextPosY += this.height
-    }
-    if (this.isGround(nextPosX, nextPosY)) {
-      this.destination.x = nextPosX
-      this.destination.y = nextPosY
-    }
-  }
-
-  attack() {
-    if (!this.isAttacked) {
-      this.game.events.emit("PLAYER_ATTACK", {
-        item: this
-      })
-      this.isAttacked = true
-    }
-  }
-
-  update() {
-    const distance = this.checkDistance()
-    if (distance <= 1) {
-      this.move()
-    }
-
-  }
-
-  draw() {
-    this.game.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-  }
-}
-
-class HP {
-  constructor(game, id, x, y, width, height, imageSrc) {
-    this.game = game
-    this.x = x ?? 100
-    this.y = y ?? 100
-    this.id = id
-    this.width = width ?? game.cellSize
-    this.height = height ?? game.cellSize
-    this.image = new Image()
-    this.image.src = imageSrc ?? "/images/tile-HP.png"
-    this.delete = false
-  }
-
-  update() {
-    if (this.x === this.game.player.x && this.y === this.game.player.y) {
-      this.game.events.emit("PLAYER_GET_HP", {
-        item: this
-      })
-      this.game.player.lives += 1
-      this.delete = true
-    }
-  }
-
-  draw() {
-    this.game.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-  }
-
-}
-
-
-class Enemy {
-  constructor(game, x, y, width, height, imageSrc) {
-    this.game = game
-    this.x = x ?? 100
-    this.y = y ?? 100
-    this.width = width ?? game.cellSize
-    this.height = height ?? game.cellSize
-    this.speed = 2
-    this.dir = 'left'
-    this.destination = {
-      x: this.x,
-      y: this.y
-    }
-    this.image = new Image()
-    this.image.src = imageSrc ?? "/images/tile-E.png"
-    this.health = this.width
-    this.delete = false
-
-    this.game.events.on("PLAYER_ATTACK", data => {
-      if (this.x + this.game.cellSize === data.item.x ||
-        this.x - this.game.cellSize === data.item.x
-      ) {
-        if (this.y === data.item.y) {
-          this.health -= 10
-          data.item.isAttacked = false
-        }
-      }
-    })
-  }
-
-  isGround(x, y) {
-    const coord = `${x}:${y}`
-    return this.game.ground[coord] === 'ground' ? true : false
-  }
-
-  checkDistance() {
-    let distanceToX = this.destination.x - this.x
-    let distanceToY = this.destination.y - this.y
-
-    let distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
-    if (distance <= this.speed) {
-      this.x = this.destination.x
-      this.y = this.destination.y
-    } else {
-      let normalizedX = distanceToX / distance;
-      this.x += normalizedX * this.speed;
-      let normalizedY = distanceToY / distance;
-      this.y += normalizedY * this.speed;
-
-      distanceToX = this.destination.x - this.x;
-      distanceToY = this.destination.y - this.y;
-
-      distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
-    }
-
-    return distance
-  }
-
-  move() {
-    let nextPosX = this.destination.x
-    let nextPosY = this.destination.y
-
-    if (this.dir === 'right') {
-      nextPosX += this.width
-    }
-    if (this.dir === 'left') {
-      nextPosX -= this.width
-    }
-    if (this.dir === 'up') {
-      nextPosY -= this.height
-    }
-    if (this.dir === 'down') {
-      nextPosY += this.height
-    }
-    if (this.isGround(nextPosX, nextPosY)) {
-      this.destination.x = nextPosX
-      this.destination.y = nextPosY
-    } else {
-      this.dir = 'up'
-    }
-  }
-
-  update() {
-    const distance = this.checkDistance()
-    if (distance <= 10) {
-      this.move()
-    }
-    if (this.x === this.game.player.x && this.y === this.game.player.y) {
-      this.game.events.emit("ENEMY_ATTACK", {
-        item: this
-      })
-    }
-    if (this.health <= 0) {
-      this.delete = true
-    }
-  }
-
-  draw() {
-    this.game.ctx.fillStyle = this.health > this.width * .5 ? "green" : "red";
-    this.game.ctx.fillRect(this.x, this.y - 10, this.health, 10);
-    this.game.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
   }
 }

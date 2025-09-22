@@ -11,7 +11,6 @@
 		<script type="text/javascript" src="/shared/3rdparty/jquery/jquery.js" language="javascript1.1"></script>
 		<script src="index.js"></script>
 
-		<script src="/js/main.js"></script>
 <style>
 * { box-sizing: border-box; }
 body, html { height: 100%; }
@@ -36,11 +35,12 @@ h1 { font-family: "Playfair Display"; font-size: 30px; padding: 10px 0px; margin
 		<h1>Игровое поле</h1>
 		<div class="field-box"><div class="field"></div></div>
 		<div class="cl"></div>
-		<!--h1>Инвентарь</h1>
-		<div class="inventory-box"><div class="inventory"></div></div-->
+		<h1>Инвентарь</h1>
+		<div class="inventory-box"><div class="inventory"></div></div>
 
-		<script>
-
+		<script type="module">
+			import {Game} from "./js/main.js"
+			
 			var game=new Game();
 			game.init();
 		</script>
