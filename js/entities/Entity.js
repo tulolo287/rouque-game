@@ -6,37 +6,66 @@ export class Entity {
     this.width = width ?? game.cellSize
     this.height = height ?? game.cellSize
     this.image = new Image()
+    this.flipImage = false
+    this.healthHeight = 7
   }
-  
-isGround(x, y) {
-  const coord = `${x}:${y}`
-  return this.game.ground[coord] === 'ground' ? true : false
-}
 
-checkDistance() {
-  let distanceToX = this.destination.x - this.x
-  let distanceToY = this.destination.y - this.y
-  
-  let distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
-  if (distance <= this.speed) {
-    this.x = this.destination.x
-    this.y = this.destination.y
-  } else {
-    let normalizedX = distanceToX / distance;
-    this.x += normalizedX * this.speed;
-    let normalizedY = distanceToY / distance;
-    this.y += normalizedY * this.speed;
-    
-    distanceToX = this.destination.x - this.x;
-    distanceToY = this.destination.y - this.y;
-    
-    distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
+  isGround(x, y) {
+    const coord = `${x}:${y}`
+    return this.game.ground[coord] === 'ground' ? true : false
   }
-  
-  return distance
-}
 
-draw() {
-  this.game.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-}
+  checkDistance() {
+    let distanceToX = this.destination.x - this.x
+    let distanceToY = this.destination.y - this.y
+
+    let distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
+    if (distance <= this.speed) {
+      this.x = this.destination.x
+      this.y = this.destination.y
+    } else {
+      let normalizedX = distanceToX / distance;
+      this.x += normalizedX * this.speed;
+      let normalizedY = distanceToY / distance;
+      this.y += normalizedY * this.speed;
+
+      distanceToX = this.destination.x - this.x;
+      distanceToY = this.destination.y - this.y;
+
+      distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
+    }
+
+    return distance
+  }
+
+    move() {
+    let nextPosX = this.destination.x
+    let nextPosY = this.destination.y
+
+    if (this.dir === 'right') {
+      this.flipImage = false
+      nextPosX += this.width
+    }
+    if (this.dir === 'left') {
+      this.flipImage = true
+      nextPosX -= this.width
+    }
+    if (this.dir === 'up') {
+      nextPosY -= this.height
+    }
+    if (this.dir === 'down') {
+      nextPosY += this.height
+    }
+    if (this.isGround(nextPosX, nextPosY)) {
+      this.destination.x = nextPosX
+      this.destination.y = nextPosY
+    }
+  }
+
+  draw() {
+    this.game.ctx.save();
+    this.game.ctx.scale(this.flipImage ? -1 : 1, 1);
+    this.game.ctx.drawImage(this.image, this.flipImage ? (this.width + this.x) * -1 : this.x, this.y, this.width, this.height);
+    this.game.ctx.restore();
+  }
 }

@@ -3,34 +3,29 @@ export class Inventory {
     this.game = game
     this.items = []
 
-    this.game.events.on("PLAYER_GET_HP", data => {
+    this.game.events.on("PLAYER_GET_INVENTORY", data => {
       data.image.height = this.game.inventoryDiv.clientHeight
       this.items.push(data)
       this.drawInventory()
     })
-    
-    this.game.events.on("PLAYER_GET_SWORD", data => {
-      data.image.height = this.game.inventoryDiv.clientHeight
-      this.items.push(data)
-      this.drawInventory()
+
+    this.game.events.on("GAME_OVER", data => {
+      this.clearInventory()
     })
-    
-    this.game.events.on("ENEMY_ATTACK", data => {
-      this.items.pop()
-      this.removeHP()
-    })
-    
   }
-  
+
   drawInventory() {
     this.items.forEach(item => {
-      console.log(item)
       this.game.inventoryDiv.appendChild(item.image)
     })
-   }
-   
-  removeHP() {
-     this.game.inventoryDiv.removeChild(this.game.inventoryDiv.lastChild);
-   }
+  }
+
+  clearInventory() {
+    if (this.game.inventoryDiv.childElementCount) {
+      this.items.forEach(item => {
+        this.game.inventoryDiv.removeChild(this.game.inventoryDiv.lastChild);
+      })
+    }
+  }
 
 }

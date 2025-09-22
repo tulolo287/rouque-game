@@ -1,14 +1,10 @@
 import {Entity} from './Entity.js';
 
 export class HP extends Entity {
-  constructor(game, id, x, y, width, height, imageSrc) {
+  constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
     this.image.src = imageSrc ?? "/images/tile-HP.png"
     this.delete = false
-    
-    this.game.events.emit("PLAYER_GET_HP", {
-      image: this.image
-    })
   }
 
   update() {
@@ -16,7 +12,6 @@ export class HP extends Entity {
       this.game.events.emit("PLAYER_GET_HP", {
         image: this.image
       })
-      this.game.player.lives += 1
       this.delete = true
     }
   }

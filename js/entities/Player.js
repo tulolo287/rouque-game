@@ -1,4 +1,4 @@
-import {Entity} from './Entity.js';
+import { Entity } from './Entity.js';
 
 export class Player extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
@@ -10,39 +10,25 @@ export class Player extends Entity {
     }
     this.dir = 'stop'
     this.image.src = imageSrc ?? "/images/tile-P.png"
-    this.lives = 1
     this.isAttacked = false
-    
+    this.attackStrength = 1
+
     this.health = this.width
     this.delete = false
-    
+
     this.game.events.on("ENEMY_ATTACK", data => {
-          this.health -= 10
+      this.health -= .5
+    })
+    this.game.events.on("PLAYER_GET_INVENTORY", data => {
+      this.attackStrength *= 5
+    })
+    this.game.events.on("PLAYER_GET_HP", data => {
+      this.health += 5
+      this.health = this.health > this.width ? this.width : this.health
     })
   }
-  
-  move() {
-    let nextPosX = this.destination.x
-    let nextPosY = this.destination.y
-    
-    if (this.dir === 'right') {
-      nextPosX += this.width
-    }
-    if (this.dir === 'left') {
-      nextPosX -= this.width
-    }
-    if (this.dir === 'up') {
-      nextPosY -= this.height
-    }
-    if (this.dir === 'down') {
-      nextPosY += this.height
-    }
-    if (this.isGround(nextPosX, nextPosY)) {
-      this.destination.x = nextPosX
-      this.destination.y = nextPosY
-    }
-  }
-  
+
+
   attack() {
     if (!this.isAttacked) {
       this.game.events.emit("PLAYER_ATTACK", {
@@ -51,21 +37,21 @@ export class Player extends Entity {
       this.isAttacked = true
     }
   }
-  
+
   update() {
     const distance = this.checkDistance()
     if (distance <= 1) {
       this.move()
     }
-      if (this.health <= 0) {
-    this.delete = true
+    if (this.health <= 0) {
+      this.game.gameOver()
+    }
   }
-  }
-  
+
   draw() {
-  super.draw()
-  this.game.ctx.fillStyle = this.health > this.width * .5 ? "green" : "red";
-  this.game.ctx.fillRect(this.x, this.y - 10, this.health, 10);
-}
-  
+    super.draw()
+    this.game.ctx.fillStyle = this.health > this.width * .5 ? "green" : "red";
+    this.game.ctx.fillRect(this.x, this.y - 10, this.health, this.healthHeight);
+  }
+
 }
