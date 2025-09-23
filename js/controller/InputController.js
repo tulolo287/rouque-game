@@ -1,5 +1,4 @@
-export class InputController {
-
+class InputController {
     constructor(game) {
         this.game = game
 

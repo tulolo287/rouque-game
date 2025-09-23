@@ -1,6 +1,4 @@
-import {Entity} from './Entity.js';
-
-export class HP extends Entity {
+class HP extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
     this.image.src = imageSrc ?? "./images/tile-HP.png"

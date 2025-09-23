@@ -1,4 +1,4 @@
-export class Entity {
+class Entity {
   constructor(game, x, y, width, height, imageSrc) {
     this.game = game
     this.x = x ?? 100

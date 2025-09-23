@@ -1,4 +1,4 @@
-export function getRandom(from, to) {
+function getRandom(from, to) {
     const random =
         from < 0
             ? Math.floor(Math.random() * (to + 1 + -from) - -from)
@@ -6,7 +6,7 @@ export function getRandom(from, to) {
     return random
 }
 
-export function loadImage(item) {
+function loadImage(item) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve({name: item.name, img});

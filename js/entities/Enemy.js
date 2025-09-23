@@ -1,6 +1,4 @@
-import { Entity } from './Entity.js';
-
-export class Enemy extends Entity {
+class Enemy extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
     this.speed = 1
@@ -45,7 +43,7 @@ export class Enemy extends Entity {
     if (this.step % this.distanceTravel === 0) {
       this.step = 0
       const newDir = Math.floor(Math.random() * 5)
-      this.dir = ['right', 'left', 'top', 'down'][newDir]
+      this.dir = ['right', 'left', 'up', 'down'][newDir]
     }
     const distance = this.checkDistance()
     if (distance <= 1) {

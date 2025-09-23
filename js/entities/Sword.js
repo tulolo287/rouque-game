@@ -1,6 +1,4 @@
-import { Entity } from './Entity.js';
-
-export class Sword extends Entity {
+class Sword extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
     this.image.src = imageSrc ?? "./images/tile-SW.png"

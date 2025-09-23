@@ -1,4 +1,4 @@
-export class Events {
+class Events {
   callbacks = [];
 
   emit(name, value) {

@@ -1,14 +1,4 @@
-import { Events } from "./Events.js"
-import { Inventory } from "./Inventory.js"
-import { InputController } from "./controller/InputController.js"
-import { Enemy } from "./entities/Enemy.js"
-import { HP } from "./entities/HP.js"
-import { Player } from "./entities/Player.js"
-import { Sword } from "./entities/Sword.js"
-import { getRandom, loadImage } from "./utils/index.js"
-
-
-export class Game {
+class Game {
   constructor() {
     this.canvas = document.createElement("canvas")
     this.field = document.querySelector(".field")
@@ -18,6 +8,7 @@ export class Game {
     this.canvas.height = this.field.clientHeight
     this.field.appendChild(this.canvas)
 
+    this.isRunning = false
     this.cellSize = Math.floor(this.canvas.width / 40)
     this.cols = Math.ceil(this.canvas.width / this.cellSize)
     this.rows = Math.ceil(this.canvas.height / this.cellSize)
@@ -116,7 +107,7 @@ export class Game {
         images.forEach(item => {
           this[item.name] = item.img
         })
-        this.loop()
+        this.start()
       })
       .catch(error => {
         console.error('Error loading images:', error);
@@ -183,6 +174,9 @@ export class Game {
   }
 
   update() {
+    if (this.enemies.length === 0) {
+      this.gameOver()
+    }
     this.player.update()
     for (let i = 0; i < this.hps.length; i++) {
       this.hps[i].update()
@@ -210,6 +204,7 @@ export class Game {
   }
 
   draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.drawWalls()
     this.drawGround()
     this.drawHPs()
@@ -219,6 +214,7 @@ export class Game {
   }
 
   gameOver() {
+    this.isRunning = false
     this.events.emit("GAME_OVER", {})
     window.cancelAnimationFrame(this.rfID);
     this.inputController.removeEventListeners()
@@ -226,9 +222,19 @@ export class Game {
   }
 
   loop = () => {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    if (!this.isRunning) return
     this.update()
     this.draw()
     this.rfID = window.requestAnimationFrame(this.loop)
   }
+
+  start() {
+    this.isRunning = true
+    this.loop()
+  }
 }
+
+window.onload = () => {
+  new Game().init();
+}
+
