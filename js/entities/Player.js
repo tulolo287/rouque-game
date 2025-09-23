@@ -9,7 +9,7 @@ export class Player extends Entity {
       y: this.y
     }
     this.dir = 'stop'
-    this.image.src = imageSrc ?? "/images/tile-P.png"
+    this.image.src = imageSrc ?? "./images/tile-P.png"
     this.isAttacked = false
     this.attackStrength = 1
 

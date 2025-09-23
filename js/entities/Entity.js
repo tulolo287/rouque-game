@@ -6,6 +6,10 @@ export class Entity {
     this.width = width ?? game.cellSize
     this.height = height ?? game.cellSize
     this.image = new Image()
+    this.imageLoaded = false
+    this.image.onload = () => {
+      this.imageLoaded = true
+    }
     this.flipImage = false
     this.healthHeight = 7
   }
@@ -63,9 +67,11 @@ export class Entity {
   }
 
   draw() {
-    this.game.ctx.save();
-    this.game.ctx.scale(this.flipImage ? -1 : 1, 1);
-    this.game.ctx.drawImage(this.image, this.flipImage ? (this.width + this.x) * -1 : this.x, this.y, this.width, this.height);
-    this.game.ctx.restore();
+    if(this.imageLoaded) {
+      this.game.ctx.save();
+      this.game.ctx.scale(this.flipImage ? -1 : 1, 1);
+      this.game.ctx.drawImage(this.image, this.flipImage ? (this.width + this.x) * -1 : this.x, this.y, this.width, this.height);
+      this.game.ctx.restore();
+    }
   }
 }

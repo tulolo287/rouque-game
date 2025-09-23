@@ -29,23 +29,10 @@ export class Game {
     this.inventory = new Inventory(this)
     this.inputController = new InputController(this)
 
-    const imageUrls = [
-      { name: 'wall', src: "/images/tile-W.png" },
-      { name: 'bg', src: "/images/tile-.png" }
+    this.imageUrls = [
+      { name: 'wall', src: "./images/tile-W.png" },
+      { name: 'bg', src: "./images/tile-.png" }
     ];
-
-    const imageLoadPromises = imageUrls.map(item => loadImage(item));
-
-    Promise.all(imageLoadPromises)
-      .then(images => {
-        images.forEach(item => {
-          this[item.name] = item.img
-        })
-        this.loop()
-      })
-      .catch(error => {
-        console.error('Error loading images:', error);
-      });
 
   }
 
@@ -122,8 +109,19 @@ export class Game {
       this.createEntities(HP, this.hps)
     }
 
-  }
+    const imageLoadPromises = this.imageUrls.map(item => loadImage(item));
 
+    Promise.all(imageLoadPromises)
+      .then(images => {
+        images.forEach(item => {
+          this[item.name] = item.img
+        })
+        this.loop()
+      })
+      .catch(error => {
+        console.error('Error loading images:', error);
+      });
+  }
 
   createEntities(entity, entities) {
     const { x, y } = this.getGroundRandomPosition()
@@ -131,7 +129,7 @@ export class Game {
   }
 
   getGroundRandomPosition(position = false) {
-    const randPos = position || Math.floor(Math.random() * this.getGroundKeys().length - 1)
+    const randPos = position || Math.floor(Math.random() * this.getGroundKeys(true).length)
     const x = parseInt(this.getGroundKeys()[randPos].split(':')[0])
     const y = parseInt(this.getGroundKeys()[randPos].split(':')[1])
     return { x, y }
@@ -226,7 +224,6 @@ export class Game {
     this.inputController.removeEventListeners()
     this.init()
   }
-
 
   loop = () => {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)

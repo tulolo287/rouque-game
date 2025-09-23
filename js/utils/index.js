@@ -6,7 +6,6 @@ export function getRandom(from, to) {
     return random
 }
 
-
 export function loadImage(item) {
     return new Promise((resolve, reject) => {
         const img = new Image();

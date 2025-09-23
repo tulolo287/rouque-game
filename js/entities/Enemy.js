@@ -9,7 +9,7 @@ export class Enemy extends Entity {
       x: this.x,
       y: this.y
     }
-    this.image.src = imageSrc ?? "/images/tile-E.png"
+    this.image.src = imageSrc ?? "./images/tile-E.png"
     this.health = this.width
     this.delete = false
     this.distanceTravel = Math.floor(Math.random() * 50 + 10)
