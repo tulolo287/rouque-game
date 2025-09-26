@@ -1,7 +1,7 @@
 class Player extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
-    this.speed = 3
+    this.speed = 20
     this.dir = 'stop'
     this.image.src = imageSrc ?? "./images/tile-P.png"
     this.isAttacked = false

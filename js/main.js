@@ -2,6 +2,7 @@ class Game {
   constructor() {
     this.canvas = document.createElement("canvas")
     this.field = document.querySelector(".field")
+    this.field.style.width = `${window.innerWidth}px`
     this.inventoryDiv = document.querySelector(".inventory")
     this.ctx = this.canvas.getContext("2d")
     this.canvas.width = this.field.clientWidth
@@ -175,15 +176,15 @@ class Game {
   }
 
   update(delta) {
-    this.player.health -= .1
     if (this.enemies.length === 0 ||
       this.player.health <= 0
     ) {
       this.gameOver()
     }
     this.player.update(delta)
+    
     for (let i = 0; i < this.hps.length; i++) {
-      this.hps[i].update(delta)
+      this.hps[i].update()
       if (this.hps[i].delete) {
         this.hps.splice(i, 1)
         i--
@@ -199,7 +200,7 @@ class Game {
     }
 
     for (let i = 0; i < this.swords.length; i++) {
-      this.swords[i].update(delta)
+      this.swords[i].update()
       if (this.swords[i].delete) {
         this.swords.splice(i, 1)
         i--
@@ -227,10 +228,10 @@ class Game {
 
   loop = (timestamp) => {
     if (!this.isRunning) return
-    
+
     const delta = ((timestamp - this.prevTime) / 100).toFixed(1)
     this.prevTime = timestamp
-    
+
     this.update(delta)
     this.draw()
     this.rfID = window.requestAnimationFrame(this.loop)

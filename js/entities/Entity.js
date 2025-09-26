@@ -9,7 +9,7 @@ class Entity {
       x: this.x,
       y: this.y
     }
-    this.speed = 5
+    this.speed = 10
     this.image = new Image()
     this.imageLoaded = false
     this.image.onload = () => {
@@ -35,9 +35,9 @@ class Entity {
     } else {
       let normalizedX = distanceToX / distance;
       let normalizedY = distanceToY / distance;
-      
-      this.x += normalizedX * this.speed * delta;
-      this.y += normalizedY * this.speed * delta;
+
+      this.x += Math.floor(normalizedX * this.speed * delta);
+      this.y += Math.floor(normalizedY * this.speed * delta);
 
       distanceToX = this.destination.x - this.x;
       distanceToY = this.destination.y - this.y;
@@ -72,13 +72,13 @@ class Entity {
     }
   }
 
-  update(delta) {
+  update(delta = 1) {
     const distance = this.checkDistance(delta)
-    if (distance <= 10) {
+    if (distance <= 1) {
       this.move()
     }
   }
-  
+
   draw() {
     if(this.imageLoaded) {
       this.game.ctx.save();
