@@ -2,10 +2,6 @@ class Player extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
     this.speed = 3
-    this.destination = {
-      x: this.x,
-      y: this.y
-    }
     this.dir = 'stop'
     this.image.src = imageSrc ?? "./images/tile-P.png"
     this.isAttacked = false
@@ -32,16 +28,6 @@ class Player extends Entity {
         item: this
       })
       this.isAttacked = true
-    }
-  }
-
-  update() {
-    const distance = this.checkDistance()
-    if (distance <= 1) {
-      this.move()
-    }
-    if (this.health <= 0) {
-      this.game.gameOver()
     }
   }
 

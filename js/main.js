@@ -8,7 +8,6 @@ class Game {
     this.canvas.height = this.field.clientHeight
     this.field.appendChild(this.canvas)
 
-    this.isRunning = false
     this.cellSize = Math.floor(this.canvas.width / 40)
     this.cols = Math.ceil(this.canvas.width / this.cellSize)
     this.rows = Math.ceil(this.canvas.height / this.cellSize)
@@ -28,6 +27,8 @@ class Game {
   }
 
   init() {
+    this.isRunning = false
+    this.prevTime = 0
     this.ground = {}
     this.walls = []
     this.enemies = []
@@ -173,13 +174,16 @@ class Game {
     }
   }
 
-  update() {
-    if (this.enemies.length === 0) {
+  update(delta) {
+    this.player.health -= .1
+    if (this.enemies.length === 0 ||
+      this.player.health <= 0
+    ) {
       this.gameOver()
     }
-    this.player.update()
+    this.player.update(delta)
     for (let i = 0; i < this.hps.length; i++) {
-      this.hps[i].update()
+      this.hps[i].update(delta)
       if (this.hps[i].delete) {
         this.hps.splice(i, 1)
         i--
@@ -187,7 +191,7 @@ class Game {
     }
 
     for (let i = 0; i < this.enemies.length; i++) {
-      this.enemies[i].update()
+      this.enemies[i].update(delta)
       if (this.enemies[i].delete) {
         this.enemies.splice(i, 1)
         i--
@@ -195,7 +199,7 @@ class Game {
     }
 
     for (let i = 0; i < this.swords.length; i++) {
-      this.swords[i].update()
+      this.swords[i].update(delta)
       if (this.swords[i].delete) {
         this.swords.splice(i, 1)
         i--
@@ -221,16 +225,20 @@ class Game {
     this.init()
   }
 
-  loop = () => {
+  loop = (timestamp) => {
     if (!this.isRunning) return
-    this.update()
+    
+    const delta = ((timestamp - this.prevTime) / 100).toFixed(1)
+    this.prevTime = timestamp
+    
+    this.update(delta)
     this.draw()
     this.rfID = window.requestAnimationFrame(this.loop)
   }
 
   start() {
     this.isRunning = true
-    this.loop()
+    this.loop(0)
   }
 }
 

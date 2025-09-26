@@ -5,6 +5,11 @@ class Entity {
     this.y = y ?? 100
     this.width = width ?? game.cellSize
     this.height = height ?? game.cellSize
+    this.destination = {
+      x: this.x,
+      y: this.y
+    }
+    this.speed = 5
     this.image = new Image()
     this.imageLoaded = false
     this.image.onload = () => {
@@ -19,19 +24,20 @@ class Entity {
     return this.game.ground[coord] === 'ground' ? true : false
   }
 
-  checkDistance() {
+  checkDistance(delta) {
     let distanceToX = this.destination.x - this.x
     let distanceToY = this.destination.y - this.y
 
     let distance = Math.sqrt(distanceToX ** 2 + distanceToY ** 2)
-    if (distance <= this.speed) {
+    if (distance <= this.speed * delta) {
       this.x = this.destination.x
       this.y = this.destination.y
     } else {
       let normalizedX = distanceToX / distance;
-      this.x += normalizedX * this.speed;
       let normalizedY = distanceToY / distance;
-      this.y += normalizedY * this.speed;
+      
+      this.x += normalizedX * this.speed * delta;
+      this.y += normalizedY * this.speed * delta;
 
       distanceToX = this.destination.x - this.x;
       distanceToY = this.destination.y - this.y;
@@ -42,7 +48,7 @@ class Entity {
     return distance
   }
 
-    move() {
+  move() {
     let nextPosX = this.destination.x
     let nextPosY = this.destination.y
 
@@ -66,6 +72,13 @@ class Entity {
     }
   }
 
+  update(delta) {
+    const distance = this.checkDistance(delta)
+    if (distance <= 10) {
+      this.move()
+    }
+  }
+  
   draw() {
     if(this.imageLoaded) {
       this.game.ctx.save();

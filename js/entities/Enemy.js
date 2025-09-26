@@ -1,12 +1,7 @@
 class Enemy extends Entity {
   constructor(game, x, y, width, height, imageSrc) {
     super(game, x, y, width, height, imageSrc)
-    this.speed = 1
     this.dir = 'left'
-    this.destination = {
-      x: this.x,
-      y: this.y
-    }
     this.image.src = imageSrc ?? "./images/tile-E.png"
     this.health = this.width
     this.delete = false
@@ -38,18 +33,15 @@ class Enemy extends Entity {
     return false
   }
 
-  update() {
+  update(delta) {
+    super.update(delta)
     this.step += 1
     if (this.step % this.distanceTravel === 0) {
       this.step = 0
       const newDir = Math.floor(Math.random() * 5)
       this.dir = ['right', 'left', 'up', 'down'][newDir]
     }
-    const distance = this.checkDistance()
-    if (distance <= 1) {
-      this.move()
-    }
-
+    
     const playerDir = this.isCollidedWith(this, this.game.cellSize, this.game.player)
     if (playerDir) {
       this.x = this.game.player.x
