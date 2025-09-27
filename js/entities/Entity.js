@@ -9,13 +9,13 @@ class Entity {
       x: this.x,
       y: this.y
     }
-    this.speed = 10
+    this.speed = 5
     this.image = new Image()
     this.imageLoaded = false
     this.image.onload = () => {
       this.imageLoaded = true
     }
-    this.flipImage = false
+    this.faceLeft = false
     this.healthHeight = 7
   }
 
@@ -53,11 +53,11 @@ class Entity {
     let nextPosY = this.destination.y
 
     if (this.dir === 'right') {
-      this.flipImage = false
+      this.faceLeft = false
       nextPosX += this.width
     }
     if (this.dir === 'left') {
-      this.flipImage = true
+      this.faceLeft = true
       nextPosX -= this.width
     }
     if (this.dir === 'up') {
@@ -82,8 +82,8 @@ class Entity {
   draw() {
     if(this.imageLoaded) {
       this.game.ctx.save();
-      this.game.ctx.scale(this.flipImage ? -1 : 1, 1);
-      this.game.ctx.drawImage(this.image, this.flipImage ? (this.width + this.x) * -1 : this.x, this.y, this.width, this.height);
+      this.game.ctx.scale(this.faceLeft ? -1 : 1, 1);
+      this.game.ctx.drawImage(this.image, this.faceLeft ? (this.width + this.x) * -1 : this.x, this.y, this.width, this.height);
       this.game.ctx.restore();
     }
   }

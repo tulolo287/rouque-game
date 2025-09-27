@@ -182,7 +182,7 @@ class Game {
       this.gameOver()
     }
     this.player.update(delta)
-    
+
     for (let i = 0; i < this.hps.length; i++) {
       this.hps[i].update()
       if (this.hps[i].delete) {
