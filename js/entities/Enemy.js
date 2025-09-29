@@ -23,7 +23,7 @@ class Enemy extends Entity {
           this.x = data.item.faceLeft === false ? this.x += this.game.cellSize : this.x -= this.game.cellSize
         } else if (Math.abs(this.disX) < Math.abs(this.disY)) {
           this.y = this.disY > 0 ? this.y += this.game.cellSize : this.y -= this.game.cellSize
-        } 
+        }
         data.item.isAttacked = false
       }
     })
@@ -41,17 +41,18 @@ class Enemy extends Entity {
     if (this.distance < this.attackDistance) {
       this.speed = this.attackSpeed
       if (Math.abs(this.disX) > Math.abs(this.disY)) {
-        this.dir = this.disX > 0 ? 'left' : 'right'
-      } else {
-        this.dir = this.disY > 0 ? 'up' : 'down'
+        this.dir = this.disX >= 0 ? 'left' : 'right'
+      }
+      if (Math.abs(this.disX) < Math.abs(this.disY)) {
+        this.dir = this.disY >= 0 ? 'up' : 'down'
       }
     } else {
       this.speed = this.walkSpeed
       this.step += 1
       if (this.step % this.distanceTravel === 0) {
         this.step = 0
-        const newDir = Math.floor(Math.random() * 5)
-        this.dir = ['right', 'left', 'up', 'down'][newDir]
+        const newDir = Math.floor(Math.random() * 6)
+        this.dir = ['right', 'left', 'up', 'down', 'stop'][newDir]
       }
     }
 

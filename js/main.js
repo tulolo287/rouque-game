@@ -2,14 +2,15 @@ class Game {
   constructor() {
     this.canvas = document.createElement("canvas")
     this.field = document.querySelector(".field")
-    this.field.style.width = `${window.innerWidth}px`
+    this.canvas.width = this.field.clientWidth
+    this.cellSize = Math.floor(this.canvas.width / 40)
+    this.canvas.height = Math.floor(this.field.clientHeight / this.cellSize) * this.cellSize
+    this.field.style.height = `${this.canvas.height}px`
+
     this.inventoryDiv = document.querySelector(".inventory")
     this.ctx = this.canvas.getContext("2d")
-    this.canvas.width = this.field.clientWidth
-    this.canvas.height = this.field.clientHeight
     this.field.appendChild(this.canvas)
 
-    this.cellSize = Math.floor(this.canvas.width / 40)
     this.cols = Math.ceil(this.canvas.width / this.cellSize)
     this.rows = Math.ceil(this.canvas.height / this.cellSize)
     this.enemiesAmount = 10
@@ -228,8 +229,9 @@ class Game {
 
   loop = (timestamp) => {
     if (!this.isRunning) return
-
-    const delta = ((timestamp - this.prevTime) / 100).toFixed(1)
+    this.timestamp = timestamp
+    
+    const delta = ((timestamp - this.prevTime) / 100)
     this.prevTime = timestamp
 
     this.update(delta)
